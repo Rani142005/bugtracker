@@ -1,0 +1,133 @@
+{% extends 'base_app.html' %}
+
+{% block content %}
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="modern-panel p-3 p-md-4 h-100">
+            <h4 class="mb-1">{{ bug.title }}</h4>
+            <p class="text-secondary mb-3">{{ bug.description }}</p>
+
+            <div class="mb-2"><strong>Assigned:</strong> {{ bug.assigned_to.username }}</div>
+            <div class="mb-3"><strong>Priority:</strong> {{ bug.priority }}</div>
+
+            <form method="POST" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_status">
+                <label class="form-label">Update Status</label>
+                <div class="d-flex gap-2">
+                    <select name="status" class="form-select">
+                        {% for status in status_choices %}
+                        <option value="{{ status }}" {% if bug.status == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_attachment">
+                <label class="form-label">Upload Attachment</label>
+                <div class="d-flex gap-2">
+                    <input class="form-control" type="file" name="attachment" required>
+                    <button class="btn btn-outline-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="modern-panel p-3 p-md-4 mb-3">
+            <h5 class="mb-3">Add Comment</h5>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_comment">
+                <div class="mb-2">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Write your comment..." required></textarea>
+                </div>
+                <button class="btn btn-success">Post Comment</button>
+            </form>
+        </div>
+
+        <div class="modern-panel p-3 p-md-4 mb-3">
+            <h5 class="mb-3">Attachments</h5>
+            {% if attachments %}
+            <div class="d-grid gap-3">
+                {% for item in attachments %}
+                <div class="border rounded-4 p-3 bg-white">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                        <div>
+                            <div class="fw-semibold">{{ item.file_name }}</div>
+                            <div class="small text-secondary">
+                                {{ item.file_type }} • {{ item.size_label }}
+                                {% if item.uploaded_by %} • Uploaded by {{ item.uploaded_by.username }}{% endif %}
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap justify-content-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ item.file.url }}" target="_blank" download>Download</a>
+                            {% if request.user.is_superuser %}
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAttachmentModal{{ item.id }}">Delete</button>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if item.is_image %}
+                    <a href="{{ item.file.url }}" target="_blank">
+                        <img src="{{ item.file.url }}" alt="{{ item.file_name }}" class="img-fluid rounded-3 border" style="max-height: 260px; object-fit: cover;">
+                    </a>
+                    {% else %}
+                    <div class="text-secondary small">Preview not available for this file type.</div>
+                    {% endif %}
+
+                    {% if request.user.is_superuser %}
+                    <div class="modal fade" id="deleteAttachmentModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Delete Attachment</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Delete attachment <strong>{{ item.file_name }}</strong>? This cannot be undone.
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <form method="POST" action="/delete-attachment/{{ item.id }}/" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="bug_id" value="{{ bug.id }}">
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-secondary mb-0">No attachments yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="modern-panel p-3 p-md-4">
+            <h5 class="mb-3">Comments</h5>
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="border rounded-3 p-2 p-md-3 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ comment.author.username }}</strong>
+                        <small class="text-secondary">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <div class="mt-1">{{ comment.content }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <p class="text-secondary mb-0">No comments yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

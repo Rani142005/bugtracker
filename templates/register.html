@@ -1,0 +1,30 @@
+{% extends 'base_auth.html' %}
+
+{% block content %}
+
+<div class="card auth-box shadow p-4">
+    <h3 class="text-center mb-4">Create Account</h3>
+
+    {% if error_message %}
+    <p class="text-danger text-center mb-3">{{ error_message }}</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <input class="form-control mb-3" name="username" placeholder="Username" required autocomplete="username">
+
+        <input class="form-control mb-3" type="password" name="password" placeholder="Password" required autocomplete="new-password">
+
+        <input class="form-control mb-3" type="password" name="confirm_password" placeholder="Confirm Password" required autocomplete="new-password">
+
+        <button class="btn btn-success w-100">Register</button>
+    </form>
+
+    <p class="text-center mt-3 mb-0">
+        Already have account? <a href="/">Login</a>
+    </p>
+
+</div>
+
+{% endblock %}

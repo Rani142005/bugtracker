@@ -1,0 +1,172 @@
+{% extends 'base_app.html' %}
+
+{% block content %}
+
+<div class="modern-panel p-3 p-md-4">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Bugs</h3>
+    {% if request.user.is_superuser %}
+    <a href="/add-bug/" class="btn btn-primary mb-0">+ New Bug</a>
+    {% endif %}
+</div>
+
+<form method="GET" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" class="form-control" name="q" placeholder="Search title, description, user" value="{{ query }}">
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" name="status">
+            <option value="">All Statuses</option>
+            {% for item in status_choices %}
+            <option value="{{ item }}" {% if status == item %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" name="priority">
+            <option value="">All Priorities</option>
+            {% for item in priority_choices %}
+            <option value="{{ item }}" {% if priority == item %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" name="assigned_to">
+            <option value="">All Users</option>
+            {% for user in users %}
+            <option value="{{ user.id }}" {% if assigned_to == user.id|stringformat:"s" %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </div>
+</form>
+
+{% if bugs %}
+
+<table class="table table-hover align-middle mb-0">
+<thead class="table-dark">
+<tr>
+    <th>Title</th>
+    <th>Priority</th>
+    <th>Status</th>
+    <th>User</th>
+    <th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+{% for bug in bugs %}
+<tr>
+    <td>{{ bug.title }}</td>
+    <td>{{ bug.priority }}</td>
+
+    <td>
+        {% if bug.status == "Open" %}
+            <span class="badge rounded-pill bg-danger px-3">Open</span>
+        {% elif bug.status == "In Progress" %}
+            <span class="badge rounded-pill bg-warning text-dark px-3">In Progress</span>
+
+        {% else %}
+            <span class="badge rounded-pill bg-success px-3">Closed</span>
+
+        {% endif %}
+    </td>
+
+    <td>{{ bug.assigned_to.username }}</td>
+
+    <td>
+        <a href="/update-bug/{{ bug.id }}/" class="btn btn-sm btn-warning">Open</a>
+        {% if request.user.is_superuser %}
+        <button
+            type="button"
+            class="btn btn-sm btn-danger js-delete-bug-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteBugModal"
+            data-bug-id="{{ bug.id }}"
+            data-bug-title="{{ bug.title }}"
+        >Delete</button>
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<nav class="mt-3" aria-label="Bug pagination">
+    <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+        {% endif %}
+
+        <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if query_params %}{{ query_params }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% else %}
+
+<div class="text-center p-4">
+    <h5 class="mb-1">No Bugs Found</h5>
+    <p class="text-secondary mb-0">Try adjusting your filters.</p>
+</div>
+
+{% endif %}
+
+</div>
+
+<div class="modal fade" id="deleteBugModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" id="deleteBugForm" action="/delete-bug/0/">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Bug</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Delete bug <strong id="deleteBugTitle">this bug</strong>? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    const form = document.getElementById('deleteBugForm');
+    const titleTarget = document.getElementById('deleteBugTitle');
+    const deleteButtons = document.querySelectorAll('.js-delete-bug-btn');
+
+    deleteButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const bugId = btn.getAttribute('data-bug-id');
+            const bugTitle = btn.getAttribute('data-bug-title') || 'this bug';
+            if (form) {
+                form.action = `/delete-bug/${bugId}/`;
+            }
+            if (titleTarget) {
+                titleTarget.textContent = bugTitle;
+            }
+        });
+    });
+})();
+</script>
+
+{% endblock %}

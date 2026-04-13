@@ -1,0 +1,95 @@
+{% extends 'base_app.html' %}
+
+{% block content %}
+
+<div class="modern-panel p-3 p-md-4">
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+    <div>
+        <h3 class="mb-1">Dashboard</h3>
+        <div class="text-secondary">A quick operational snapshot of your queue.</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="ui-icon"><i class="fa-solid fa-bug"></i></div>
+                <div>
+                    <div class="text-secondary small">Total Bugs</div>
+                    <div class="fs-3 fw-bold">{{ total_bugs }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="ui-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div>
+                    <div class="text-secondary small">Overdue Tasks</div>
+                    <div class="fs-3 fw-bold text-danger">{{ overdue_tasks_count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="ui-icon"><i class="fa-regular fa-bell"></i></div>
+                <div>
+                    <div class="text-secondary small">Unread Notifications</div>
+                    <div class="fs-3 fw-bold text-primary">{{ unread_notifications_count_dashboard }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="ui-icon"><i class="fa-solid fa-calendar-day"></i></div>
+                <div>
+                    <div class="text-secondary small">Today's Workload</div>
+                    <div class="fs-3 fw-bold text-success">{{ todays_workload_count }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Open Bugs</div>
+            <div class="fs-3 fw-bold text-danger">{{ open_bugs }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Closed Bugs</div>
+            <div class="fs-3 fw-bold text-success">{{ closed_bugs }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Total Tasks</div>
+            <div class="fs-3 fw-bold text-warning">{{ tasks }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100 d-flex align-items-center justify-content-center">
+            <div class="text-center">
+                <a href="/bugs/" class="btn btn-outline-primary mb-2 w-100"><i class="fas fa-bug me-2"></i>View Bugs</a>
+                <a href="/tasks/" class="btn btn-outline-success w-100"><i class="fas fa-tasks me-2"></i>View Tasks</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% endblock %}

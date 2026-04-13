@@ -1,0 +1,59 @@
+{% extends 'base_app.html' %}
+
+{% block content %}
+
+<div class="modern-panel p-3 p-md-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h3 class="mb-0">Notifications</h3>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+            <span class="text-secondary small">Unread: {{ unread_notifications_count }}</span>
+            <form method="POST" action="/notifications/mark-all/">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-primary">Mark all read</button>
+            </form>
+        </div>
+    </div>
+
+    {% if notifications %}
+    <div class="d-grid gap-2">
+        {% for note in notifications %}
+        <div class="ui-card p-3 {% if not note.is_read %}border-primary{% endif %}">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+                <div class="d-flex gap-3">
+                    <div class="ui-icon">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">{{ note.message }}</div>
+                        <div class="small text-secondary">
+                            {% if note.actor %}By {{ note.actor.username }}{% else %}System{% endif %} • {{ note.created_at|date:"M d, H:i" }}
+                        </div>
+                        <div class="mt-1">
+                            {% if note.is_read %}
+                                <span class="badge text-bg-success">Read</span>
+                            {% else %}
+                                <span class="badge text-bg-warning text-dark">Unread</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <form method="POST" action="/notifications/{{ note.id }}/toggle/">
+                    {% csrf_token %}
+                    <button class="btn btn-sm {% if note.is_read %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+                        {% if note.is_read %}Mark unread{% else %}Mark read{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-regular fa-bell fa-2x mb-2"></i>
+        <div class="fw-semibold">No notifications yet</div>
+        <div class="small">You’ll see task and bug activity here.</div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

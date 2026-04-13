@@ -1,0 +1,62 @@
+{% extends 'base_app.html' %}
+
+{% block content %}
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="modern-panel p-3 p-md-4 h-100">
+            <h4 class="mb-1">{{ task.title }}</h4>
+            <p class="text-secondary mb-3">{{ task.description }}</p>
+
+            <div class="mb-2"><strong>Assigned:</strong> {{ task.assigned_to.username }}</div>
+            <div class="mb-3"><strong>Due:</strong> {{ task.due_date|default:'Not set' }}</div>
+
+            <form method="POST" class="mb-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_status">
+                <label class="form-label">Update Status</label>
+                <div class="d-flex gap-2">
+                    <select name="status" class="form-select">
+                        {% for status in status_choices %}
+                        <option value="{{ status }}" {% if task.status == status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="modern-panel p-3 p-md-4 mb-3">
+            <h5 class="mb-3">Add Comment</h5>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_comment">
+                <div class="mb-2">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Write your comment..." required></textarea>
+                </div>
+                <button class="btn btn-success">Post Comment</button>
+            </form>
+        </div>
+
+        <div class="modern-panel p-3 p-md-4">
+            <h5 class="mb-3">Comments</h5>
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="border rounded-3 p-2 p-md-3 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ comment.author.username }}</strong>
+                        <small class="text-secondary">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <div class="mt-1">{{ comment.content }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <p class="text-secondary mb-0">No comments yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

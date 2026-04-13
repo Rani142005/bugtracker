@@ -1,0 +1,120 @@
+{% extends 'base_app.html' %}
+
+{% block content %}
+
+<div class="modern-panel p-3 p-md-4">
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
+    <div>
+        <h3 class="mb-1">Admin Control Panel</h3>
+        <div class="text-secondary">Team-wide visibility and control.</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Total Bugs</div>
+            <div class="fs-3 fw-bold text-primary">{{ total_bugs }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Open Bugs</div>
+            <div class="fs-3 fw-bold text-danger">{{ open_bugs }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Closed Bugs</div>
+            <div class="fs-3 fw-bold text-success">{{ closed_bugs }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Total Tasks</div>
+            <div class="fs-3 fw-bold text-warning">{{ tasks }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Overdue Tasks</div>
+            <div class="fs-3 fw-bold text-danger">{{ overdue_tasks_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Unread Notifications</div>
+            <div class="fs-3 fw-bold text-primary">{{ unread_notifications_count_dashboard }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100">
+            <div class="text-secondary small">Today's Workload</div>
+            <div class="fs-3 fw-bold text-success">{{ todays_workload_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ui-card p-3 h-100 d-flex align-items-center justify-content-center">
+            <div class="text-center">
+                <a href="/users/" class="btn btn-outline-primary mb-2 w-100"><i class="fa-solid fa-users me-2"></i>Manage Users</a>
+                <a href="/add-bug/" class="btn btn-outline-danger w-100"><i class="fa-solid fa-plus me-2"></i>Create Bug</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-lg-7">
+        <div class="ui-card p-3 p-md-4 h-100">
+            <h5 class="mb-3"><i class="fa-solid fa-chart-pie me-2"></i>Bug Statistics</h5>
+            <div style="max-width: 320px; margin: auto;">
+                <canvas id="bugChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="ui-card p-3 p-md-4 h-100">
+            <h5 class="mb-3"><i class="fa-solid fa-bolt me-2"></i>Admin Actions</h5>
+            <div class="d-grid gap-2">
+                <a href="/add-bug/" class="btn btn-danger"><i class="fas fa-plus me-2"></i>Create Bug</a>
+                <a href="/add-task/" class="btn btn-success"><i class="fas fa-plus-circle me-2"></i>Create Task</a>
+                <a href="/bugs/" class="btn btn-outline-dark"><i class="fas fa-bug me-2"></i>Manage Bugs</a>
+                <a href="/tasks/" class="btn btn-outline-dark"><i class="fas fa-tasks me-2"></i>Manage Tasks</a>
+                <a href="/users/" class="btn btn-outline-primary"><i class="fas fa-users me-2"></i>Manage Users</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const canvas = document.getElementById('bugChart');
+
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Open Bugs', 'Closed Bugs'],
+                datasets: [{
+                    data: [
+                        Number("{{ open_bugs|default:'0' }}"),
+                        Number("{{ closed_bugs|default:'0' }}")
+                    ],
+                    backgroundColor: ['#ef4444', '#22c55e']
+                }]
+            }
+        });
+    }
+
+});
+</script>
+
+</div>
+
+{% endblock %}
